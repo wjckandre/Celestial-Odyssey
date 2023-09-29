@@ -25,7 +25,20 @@ plateformes = [pygame.Rect(100, 300, 200, 10),
               pygame.Rect(400, 450, 200, 10),
               pygame.Rect(200, 200, 200, 10)]
 
+def Is_Falling():
+    falling = True
+    for plateforme in plateformes:
+        if personnage.colliderect(plateforme):
+            falling = False
+    if personnage.y > (hauteur - 40) :
+        falling = False
+    return falling
+
 # Boucle de jeu
+time = 0
+cooldown = 0
+Status = "falling"
+falling = True
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -38,12 +51,31 @@ while True:
     if touches[pygame.K_RIGHT]:
         personnage.x += personnage_vitesse
 
-    if not saut:
-        if touches[pygame.K_SPACE]:
-            saut = True
-            
-    else:
 
+    
+    if touches[pygame.K_SPACE]:
+        if (time-cooldown >= 5):
+            Status = "jumping"
+
+    
+    else:
+        Status ="falling"
+
+    if Status == "falling":
+        print("falling")
+        # Gravité
+        if personnage.y < (hauteur - 40):
+            personnage.y += 1
+            Status = "falling"
+    
+    elif Status == "idle":
+        print("idle")
+    
+    elif Status == "Jumping":
+        print("jumping")
+        # Jump
+
+        cooldown = time
         if saut_compteur > 200:
             personnage.y -= 1
             saut_compteur -= 1
@@ -51,14 +83,9 @@ while True:
             personnage.y += 1
             saut_compteur -= 1
         else:
-            saut = False
             saut_compteur = 400
-        
 
-
-    # Gravité
-    if personnage.y < hauteur - 50 and not saut:
-        personnage.y += 1
+    
 
     # Collision avec les plateformes
     for plateforme in plateformes:
@@ -66,6 +93,19 @@ while True:
             saut = False
             saut_compteur = 400
             personnage.y = plateforme.y - personnage.height
+            Status = "idle"
+        else:
+            Status = "falling"
+
+    
+
+            
+        
+            
+        
+
+
+    
 
     # Effacer l'écran
     ecran.fill(blanc)
@@ -79,6 +119,6 @@ while True:
 
     # Mettre à jour l'affichage
     pygame.display.flip()
-
+    time += 0.01
 # Quitter Pygame
 pygame.quit()
