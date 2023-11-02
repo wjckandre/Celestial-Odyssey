@@ -25,7 +25,7 @@ player_y_speed = 0
 gravity = 0.0001
 jump_strength = -0.1
 jump_speed = 2
-player_movement_speed = 0.01
+player_movement_speed = 0.06
 is_facing_left = False
 
 # Variables de dash
@@ -37,6 +37,7 @@ dash_horizontal_movement_speed = 0.1 # Vitesse du dash en direction horizontale
 dash_vertical_movement_speed = 0.1    # Vitesse du dash en direction verticale
 dash_horizontal_speed = 0
 dash_vertical_speed = 0
+remain_dashes = 1
 
 # Plateformes
 platforms = [pygame.Rect(100, 400, 200, 10), pygame.Rect(400, 300, 200, 10)]
@@ -86,17 +87,19 @@ while running:
                     player_y = platform.top - player_height
                     player_y_speed = 0
                     is_jumping = False
+                    if remain_dashes == 0 : remain_dashes += 1
                     on_ground = True
             elif player_y_speed < 0:
                 if player_rect.bottom > platform.top:
                     player_y = platform.bottom
                     player_y_speed = 0
 
-    if keys[pygame.K_SPACE] and on_ground and current_time - last_jump_time >= jump_cooldown and not is_dashing:
+    if keys[pygame.K_SPACE] and on_ground and current_time - last_jump_time >= jump_cooldown and not is_dashing :
         player_y_speed = jump_strength
         player_x_speed *= jump_speed
         is_jumping = True
         last_jump_time = current_time
+        
 
     if is_dashing:
         player_x_speed = dash_horizontal_speed
@@ -104,7 +107,8 @@ while running:
         if current_time - dash_timer >= dash_duration:
             is_dashing = False
 
-    elif keys[pygame.K_LSHIFT] and current_time - dash_timer >= dash_cooldown and not is_dashing:
+    elif keys[pygame.K_LSHIFT] and current_time - dash_timer >= dash_cooldown and not is_dashing and remain_dashes > 0:
+        remain_dashes -= 1
         is_dashing = True
         dash_timer = current_time
         if keys[pygame.K_LEFT]:
@@ -159,6 +163,7 @@ while running:
     else:
         screen.blit(player_image, (player_x, player_y))
 
+    print(remain_dashes)
 
     pygame.display.update()
 
