@@ -2,6 +2,13 @@ import pygame
 import sys
 import time
 
+
+class Plateforme:
+    def __init__(self, x, y, width, height):
+        self.rect = pygame.Rect(x, y, width, height)
+        # Vous pouvez ajouter d'autres propriétés spécifiques ici
+
+
 # Initialisation de Pygame
 pygame.init()
 
@@ -22,34 +29,57 @@ player_x = 50
 player_y = 50
 player_x_speed = 0
 player_y_speed = 0
-gravity = 0.0001
-jump_strength = -0.1
-jump_speed = 2
-player_movement_speed = 0.06
+gravity = 0.002
+jump_strength = -0.5
+jump_speed = 3
+player_movement_speed = 0.3
 is_facing_left = False
 
 # Variables de dash
 dash_cooldown = 0.5
-dash_duration = 0.25
+dash_duration = 0.15
 is_dashing = False
 dash_timer = 0
-dash_horizontal_movement_speed = 0.1 # Vitesse du dash en direction horizontale
-dash_vertical_movement_speed = 0.1    # Vitesse du dash en direction verticale
+dash_horizontal_movement_speed = 0.6 # Vitesse du dash en direction horizontale
+dash_vertical_movement_speed = 0.6    # Vitesse du dash en direction verticale
 dash_horizontal_speed = 0
 dash_vertical_speed = 0
 remain_dashes = 1
 
 # Plateformes
-platforms = [pygame.Rect(100, 400, 200, 10), pygame.Rect(400, 300, 200, 10)]
+level_matrix = [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+    [0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+    [0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+]
+platforms = []
+platform_width = screen_width / len(level_matrix[0])
+platform_height = screen_height / len(level_matrix)
+
+for row in range(len(level_matrix)):
+    for col in range(len(level_matrix[row])):
+        if level_matrix[row][col] == 1:
+            platform = pygame.Rect(col * platform_width, row * platform_height, platform_width, platform_height)
+            platforms.append(platform)
+
 
 # Ajouter une plateforme fictive au bas de l'écran
 ground = pygame.Rect(0, screen_height - 10, screen_width, 10)
 platforms.append(ground)
-
-# Ajouter deux nouvelles plateformes plus petites
-small_platform_1 = pygame.Rect(600, 450, 100, 10)
-small_platform_2 = pygame.Rect(200, 200, 100, 10)
-platforms.extend([small_platform_1, small_platform_2])
 
 # Variables de saut
 is_jumping = False
@@ -156,6 +186,7 @@ while running:
     # Dessiner les plateformes
     for platform in platforms:
         pygame.draw.rect(screen, (0, 0, 255), platform)
+
 
     if is_facing_left:
         player_image_flipped = pygame.transform.flip(player_image, True, False)
