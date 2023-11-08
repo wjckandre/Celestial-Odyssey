@@ -22,29 +22,34 @@ pygame.display.set_caption("Celeste Clone")
 WHITE = (255, 255, 255)
 
 # Joueur
-player_image = pygame.image.load("6.png") 
+player_image = pygame.image.load("6.png")
 player_width = 60
 player_height = 83
 player_x = 50
 player_y = 50
 player_x_speed = 0
 player_y_speed = 0
-gravity = 0.05
-jump_strength = -4
+gravity = 0.09
+jump_strength = -6
 jump_speed = 3
-player_movement_speed = 1.2
+player_movement_speed = 1.8
 is_facing_left = False
 
 # Variables de dash
-dash_cooldown = 0.5
-dash_duration = 0.15
-is_dashing = False
+dash_cooldown = 0.1
+dash_horizontal_duration = 0.28
+dash_vertical_duration = 0.12
+is_horizontal_dashing = False
+is_vertical_dashing = False
 dash_timer = 0
-dash_horizontal_movement_speed = 6 # Vitesse du dash en direction horizontale
-dash_vertical_movement_speed = 6    # Vitesse du dash en direction verticale
+dash_horizontal_movement_speed = 8 # Vitesse du dash en direction horizontale
+dash_vertical_movement_speed = 8    # Vitesse du dash en direction verticale
 dash_horizontal_speed = 0
 dash_vertical_speed = 0
 remain_dashes = 1
+image_remanente = pygame.image.load("imageremanente.png")
+image_remanente_pos = [(player_x, player_y)]
+is_image_remanente_facing_left = [False]
 
 # Plateformes
 level_matrix = [
@@ -53,6 +58,10 @@ level_matrix = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -62,23 +71,20 @@ level_matrix = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0],
-    [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0],
-    [1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0],
-    [1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0],
-    [1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-    [1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-    [1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-    [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0],
+    [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0],
+    [1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0],
+    [1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0],
+    [1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0],
+    [1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0],
+    [1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0],
+    [1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0],
+    [1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0],
+    [1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 0, 0]
 ]
 platforms = []
+pics = []
 platform_width = screen_width / len(level_matrix[0])
 platform_height = screen_height / len(level_matrix)
 
@@ -87,6 +93,9 @@ for row in range(len(level_matrix)):
         if level_matrix[row][col] == 1:
             platform = pygame.Rect(col * platform_width, row * platform_height, platform_width, platform_height)
             platforms.append(platform)
+        if level_matrix[row][col] == 2:
+            pic = pygame.Rect(col * platform_width, row * platform_height, platform_width, platform_height)
+            pics.append(pic)
 
 
 # Ajouter une plateforme fictive au bas de l'écran
@@ -108,7 +117,7 @@ while running:
             running = False
 
     keys = pygame.key.get_pressed()
-    if not is_dashing:
+    if not (is_vertical_dashing or is_horizontal_dashing):
         if keys[pygame.K_LEFT] :
             player_x_speed = -player_movement_speed
             is_facing_left = True
@@ -122,58 +131,100 @@ while running:
     on_ground = False
     player_rect = pygame.Rect(player_x, player_y, player_width, player_height)
 
+
+# COLLISION PLATEFORMES
     for platform in platforms:
         if player_rect.colliderect(platform):
             if player_y_speed > 0:
-                if player_rect.top < platform.bottom:
+                if player_rect.top < platform.bottom and player_rect.bottom < platform.bottom:
                     player_y = platform.top - player_height
                     player_y_speed = 0
                     is_jumping = False
-                    if remain_dashes == 0 : remain_dashes += 1
                     on_ground = True
+                    if remain_dashes == 0:
+                        remain_dashes += 1
             elif player_y_speed < 0:
-                if player_rect.bottom > platform.top:
+                if player_rect.bottom > platform.top and player_rect.top > platform.top:
                     player_y = platform.bottom
                     player_y_speed = 0
+            if player_x_speed < 0:
+                # Ajout de la logique pour bloquer le personnage sur le côté de la plateforme
+                if player_rect.left < platform.right and player_rect.right > platform.right and ((player_rect.bottom-5) > platform.top and (player_rect.bottom-5) < platform.bottom):
+                    player_x = platform.right
+                    player_x_speed = 0
+            elif player_x_speed > 0:
+                # Ajout de la logique pour bloquer le personnage sur le côté de la plateforme
+                if player_rect.left < platform.left and player_rect.right > platform.left and ((player_rect.bottom-5) > platform.top and (player_rect.bottom-5) < platform.bottom):
+                    player_x = platform.left - player_width
+                    player_x_speed = 0
 
-    if keys[pygame.K_SPACE] and on_ground and current_time - last_jump_time >= jump_cooldown and not is_dashing :
+
+# COLLISION PICS
+    for pic in pics:
+        if player_rect.colliderect(pic):
+            player_x = 50
+            player_y = 50
+            remain_dashes = 0
+            is_jumping = True
+            is_horizontal_dashing = False
+            is_vertical_dashing = False
+            player_x_speed = 0
+            player_y_speed = 0
+
+    if keys[pygame.K_SPACE] and on_ground and current_time - last_jump_time >= jump_cooldown and not (is_vertical_dashing or is_horizontal_dashing) :
         player_y_speed = jump_strength
         player_x_speed *= jump_speed
         is_jumping = True
         last_jump_time = current_time
         
 
-    if is_dashing:
+    if is_horizontal_dashing or is_vertical_dashing:
         player_x_speed = dash_horizontal_speed
         player_y_speed = dash_vertical_speed
-        if current_time - dash_timer >= dash_duration:
-            is_dashing = False
+        if current_time - dash_timer >= (dash_horizontal_duration + dash_vertical_duration)/4 and len(image_remanente_pos) == 1:
+            image_remanente_pos.append((player_x,player_y))
+            is_image_remanente_facing_left.append(is_facing_left)
+        if current_time - dash_timer >= dash_horizontal_duration:
+            is_horizontal_dashing = False
+        if current_time - dash_timer >= dash_vertical_duration:
+            is_vertical_dashing = False
 
-    elif keys[pygame.K_LSHIFT] and current_time - dash_timer >= dash_cooldown and not is_dashing and remain_dashes > 0:
+    elif keys[pygame.K_LSHIFT] and current_time - dash_timer >= dash_cooldown and remain_dashes > 0:
+        image_remanente_pos.append((player_x, player_y))
+        is_image_remanente_facing_left.append(is_facing_left)
+        if keys[pygame.K_DOWN] or keys[pygame.K_UP]:
+            is_vertical_dashing = True
+        if keys[pygame.K_LEFT] or keys[pygame.K_RIGHT]:
+            is_horizontal_dashing = True
+        elif not(keys[pygame.K_DOWN] or keys[pygame.K_UP]):
+            is_horizontal_dashing = True
+
         remain_dashes -= 1
-        is_dashing = True
         dash_timer = current_time
-        if keys[pygame.K_LEFT]:
-            dash_horizontal_speed = -dash_horizontal_movement_speed
-        elif keys[pygame.K_RIGHT]:
-            dash_horizontal_speed = dash_horizontal_movement_speed
-        else:
-            dash_horizontal_speed = 0
-
-        if keys[pygame.K_UP]:
-            dash_vertical_speed = -dash_vertical_movement_speed
-        elif keys[pygame.K_DOWN]:
-            dash_vertical_speed = dash_vertical_movement_speed
+        if is_vertical_dashing:
+            if keys[pygame.K_UP]:
+                dash_vertical_speed = -dash_vertical_movement_speed
+            elif keys[pygame.K_DOWN]:
+                dash_vertical_speed = dash_vertical_movement_speed
         else:
             dash_vertical_speed = 0
         
-        if not keys[pygame.K_LEFT] and not keys[pygame.K_RIGHT] and not keys[pygame.K_UP] and not keys[pygame.K_DOWN]:
-            if is_facing_left:
+        
+        if is_horizontal_dashing:
+            if keys[pygame.K_LEFT]:
                 dash_horizontal_speed = -dash_horizontal_movement_speed
-            else:
+            elif keys[pygame.K_RIGHT]:
                 dash_horizontal_speed = dash_horizontal_movement_speed
-
-    if not on_ground and not is_dashing:
+            
+            elif not (keys[pygame.K_UP]) and not (keys[pygame.K_DOWN]):
+                if is_facing_left:
+                    dash_horizontal_speed = -dash_horizontal_movement_speed
+                else:
+                    dash_horizontal_speed = dash_horizontal_movement_speed
+        else:
+            dash_horizontal_speed = 0
+        
+    if not on_ground and not (is_vertical_dashing or is_horizontal_dashing):
         player_y_speed += gravity
 
     player_x += player_x_speed
@@ -198,13 +249,31 @@ while running:
     # Dessiner les plateformes
     for platform in platforms:
         pygame.draw.rect(screen, (0, 0, 255), platform)
+    # Dessiner les pics
+    for pic in pics:
+        pygame.draw.rect(screen, (255, 0, 0), pic)
 
+    # Dessiner le personnage
+    if remain_dashes == 0:
+        player_image = pygame.image.load("dashsprite.png")
+        for i in range(len(image_remanente_pos)):
+            if is_image_remanente_facing_left[i]:
+                image_remanente_flipped = pygame.transform.flip(image_remanente, True, False)
+                screen.blit(image_remanente_flipped, image_remanente_pos[i])
+            else:    
+                screen.blit(image_remanente, image_remanente_pos[i])
 
+    else:
+        image_remanente_pos.clear()
+        is_image_remanente_facing_left.clear()
+        player_image = pygame.image.load("6.png")
     if is_facing_left:
         player_image_flipped = pygame.transform.flip(player_image, True, False)
         screen.blit(player_image_flipped, (player_x, player_y))
     else:
         screen.blit(player_image, (player_x, player_y))
+    
+        
 
     print(remain_dashes)
 
