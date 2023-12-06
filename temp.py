@@ -17,6 +17,8 @@ screen_width = 1920
 screen_height = 1080
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Celeste Clone")
+clock = pygame.time.Clock()
+
 
 # Couleurs
 WHITE = (255, 255, 255)
@@ -29,21 +31,21 @@ player_x = 50
 player_y = 50
 player_x_speed = 0
 player_y_speed = 0
-gravity = 0.09
-jump_strength = -6
+gravity = 0.4
+jump_strength = -15
 jump_speed = 3
-player_movement_speed = 1.8
+player_movement_speed = 5
 is_facing_left = False
 
 # Variables de dash
 dash_cooldown = 0.1
-dash_horizontal_duration = 0.28
-dash_vertical_duration = 0.12
+dash_horizontal_duration = 0.4
+dash_vertical_duration = 0.25
 is_horizontal_dashing = False
 is_vertical_dashing = False
 dash_timer = 0
-dash_horizontal_movement_speed = 8 # Vitesse du dash en direction horizontale
-dash_vertical_movement_speed = 8    # Vitesse du dash en direction verticale
+dash_horizontal_movement_speed = 15 # Vitesse du dash en direction horizontale
+dash_vertical_movement_speed = 15   # Vitesse du dash en direction verticale
 dash_horizontal_speed = 0
 dash_vertical_speed = 0
 remain_dashes = 1
@@ -217,15 +219,15 @@ while running:
         dash_timer = current_time
         if is_vertical_dashing and is_horizontal_dashing:
             if keys[pygame.K_UP]:
-                dash_vertical_speed = -dash_vertical_movement_speed/1.7
+                dash_vertical_speed = -dash_vertical_movement_speed/1.5
             elif keys[pygame.K_DOWN]:
-                dash_vertical_speed = dash_vertical_movement_speed/1.7
+                dash_vertical_speed = dash_vertical_movement_speed/1.5
             else:
                 dash_vertical_speed = 0
             if keys[pygame.K_LEFT]:
-                dash_horizontal_speed = -dash_horizontal_movement_speed/1.7
+                dash_horizontal_speed = -dash_horizontal_movement_speed/1.5
             elif keys[pygame.K_RIGHT]:
-                dash_horizontal_speed = dash_horizontal_movement_speed/1.7
+                dash_horizontal_speed = dash_horizontal_movement_speed/1.5
             else:
                 dash_horizontal_speed = 0
         else:
@@ -317,8 +319,9 @@ while running:
         screen.blit(player_image, (player_x, player_y))
     
         
-
     print(remain_dashes)
+
+    clock.tick(120)
 
     pygame.display.update()
 
